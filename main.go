@@ -10,95 +10,74 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type event struct {
-	ID          string `json:"ID"`
-	Title       string `json:"Title"`
-	Description string `json:"Description"`
+type Car struct {
+	LicenseNo string `json:"LicenseNo"`
+	Colour    string `json:"Colour"`
 }
 
-type allEvents []event
+type ParkingSlot struct {
+	SlotNo int  `json:"SlotNo"`
+	Car    *Car `json:"Car"`
+}
 
-var events = allEvents{
-	{
-		ID:          "1",
-		Title:       "Introduction to Golang",
-		Description: "Come join us",
-	},
+type ParkingLot struct {
+	TotalSlot      int           `json:"TotalSlot"`
+	OccupiedSlot   int           `json:"OccupiedSlot"`
+	NextFreeSlotNo int           `json:"NextFreeSlotNo"`
+	ParkingSlot    []ParkingSlot `json:"ParkingSlot"`
+}
+
+var parkingLot = ParkingLot{}
+
+func createParkingLot(w http.ResponseWriter, r *http.Request) {
+	var tempParkingLot ParkingLot
+	var totalSlot int
+	reqBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Fprintf(w, "Kindly enter size of parking lot")
+		return
+	}
+
+	json.Unmarshal(reqBody, &tempParkingLot)
+	if parkingLot.TotalSlot > 0 {
+		fmt.Fprintf(w, "Parking lot has been created")
+		return
+	}
+	totalSlot = tempParkingLot.TotalSlot
+	parkingSlot := make([]ParkingSlot, totalSlot)
+
+	for i := 0; i < len(parkingSlot); i++ {
+		parkingSlot[i] = ParkingSlot{
+			SlotNo: i,
+			Car:    nil,
+		}
+	}
+
+	parkingLot = ParkingLot{
+		TotalSlot:      totalSlot,
+		OccupiedSlot:   0,
+		NextFreeSlotNo: 0,
+		ParkingSlot:    parkingSlot,
+	}
+	w.WriteHeader(http.StatusCreated)
+
+	json.NewEncoder(w).Encode(parkingLot)
+
+}
+
+func getParkingLot(w http.ResponseWriter, r *http.Request) {
+	json.NewEncoder(w).Encode(parkingLot)
 }
 
 func homelink(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome home!")
 }
 
-func createEvent(w http.ResponseWriter, r *http.Request) {
-	var newEvent event
-	reqBody, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		fmt.Fprintf(w, "Kindly enter good data")
-	}
-
-	json.Unmarshal(reqBody, &newEvent)
-	events = append(events, newEvent)
-	w.WriteHeader(http.StatusCreated)
-
-	json.NewEncoder(w).Encode(newEvent)
-
-}
-
-func getOneEvent(w http.ResponseWriter, r *http.Request) {
-	eventID := mux.Vars(r)["id"]
-
-	for _, singleEvent := range events {
-		if singleEvent.ID == eventID {
-			json.NewEncoder(w).Encode(singleEvent)
-		}
-	}
-
-}
-
-func getAllEvents(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(events)
-}
-
-func updateEvent(w http.ResponseWriter, r *http.Request) {
-	eventID := mux.Vars(r)["id"]
-	var updatedEvent event
-
-	reqBody, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		fmt.Fprintf(w, "Kindly enter good data to update")
-	}
-	json.Unmarshal(reqBody, &updatedEvent)
-
-	for i, singleEvent := range events {
-		if singleEvent.ID == eventID {
-			(&events[i]).Title = updatedEvent.Title
-			(&events[i]).Description = updatedEvent.Description
-			singleEvent.Title = updatedEvent.Title
-			singleEvent.Description = updatedEvent.Description
-			json.NewEncoder(w).Encode(singleEvent)
-		}
-	}
-}
-
-func deleteEvent(w http.ResponseWriter, r *http.Request) {
-	eventID := mux.Vars(r)["id"]
-
-	for i, singleEvent := range events {
-		if singleEvent.ID == eventID {
-			events = append(events[:i], events[i+1:]...)
-			fmt.Fprintf(w, "The event with ID %v has been deleted successfully", eventID)
-		}
-	}
-}
-
 func main() {
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", homelink)
-	router.HandleFunc("/event", createEvent).Methods("POST")
-	router.HandleFunc("/events/{id}", getOneEvent).Methods("GET")
-	router.HandleFunc("/events", getAllEvents).Methods("GET")
-	router.HandleFunc("/events/{id}", updateEvent).Methods("PATCH")
-	router.HandleFunc("/events/{id}", deleteEvent).Methods("DELETE")
+
+	router.HandleFunc("/parking-lot", createParkingLot).Methods("POST")
+	router.HandleFunc("/parking-lot", getParkingLot).Methods("GET")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
