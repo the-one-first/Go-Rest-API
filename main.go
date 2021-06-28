@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -65,7 +66,7 @@ func createParkingLot(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func allocateCarToParkingSpot(w http.ResponseWriter, r *http.Request) {
+func parkCarToParkingSpot(w http.ResponseWriter, r *http.Request) {
 	var newCarParked Car
 	reqBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -104,6 +105,43 @@ func allocateCarToParkingSpot(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func leaveCarFromParkingLot(w http.ResponseWriter, r *http.Request) {
+	parkingSlotNoLeave := mux.Vars(r)["ParkingSlotNo"]
+	parkingSlotNumber, err := strconv.Atoi(parkingSlotNoLeave)
+
+	if err == nil {
+		if parkingLot.TotalSlot == 0 {
+			fmt.Fprintf(w, "Parking lot has not been created yet")
+			return
+		}
+		for i := 0; i < len(parkingLot.ParkingSlot); i++ {
+			if parkingLot.ParkingSlot[i].SlotNo == parkingSlotNumber {
+				if parkingLot.ParkingSlot[i].Car != nil {
+					carTemp := parkingLot.ParkingSlot[i].Car
+					parkingLot.ParkingSlot[i].Car = nil
+					parkingLot.OccupiedSlot = parkingLot.OccupiedSlot - 1
+
+					for j := 0; j < len(parkingLot.ParkingSlot); j++ {
+						if parkingLot.ParkingSlot[j].Car == nil {
+							parkingLot.NextFreeSlotNo = j
+							break
+						}
+					}
+					w.WriteHeader(http.StatusCreated)
+					json.NewEncoder(w).Encode(carTemp)
+					return
+				} else {
+					fmt.Fprintf(w, "No Car is Parked at Parking Slot No : %v", parkingSlotNoLeave)
+					return
+				}
+			}
+		}
+	} else {
+		fmt.Fprintf(w, "Please pass the parking slot number to leave")
+		return
+	}
+}
+
 func getParkingLot(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(parkingLot)
 }
@@ -118,6 +156,7 @@ func main() {
 
 	router.HandleFunc("/parking-lot", createParkingLot).Methods("POST")
 	router.HandleFunc("/parking-lot", getParkingLot).Methods("GET")
-	router.HandleFunc("/parking-a-car", allocateCarToParkingSpot).Methods("POST")
+	router.HandleFunc("/parking-lot/park", parkCarToParkingSpot).Methods("POST")
+	router.HandleFunc("/parking-lot/leave/{ParkingSlotNo}", leaveCarFromParkingLot).Methods("PUT")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
