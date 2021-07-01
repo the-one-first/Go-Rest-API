@@ -1,0 +1,191 @@
+{
+	"info": {
+		"_postman_id": "0c9e3f8d-df3a-4415-b9ba-5e43fbb521c2",
+		"name": "Go-Rest-API",
+		"description": "Rest API using Go",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "CreateParkingLot",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"TotalSlot\": 5\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/parking-lot",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"parking-lot"
+					]
+				},
+				"description": "Create Parking Lot"
+			},
+			"response": []
+		},
+		{
+			"name": "GetParkingLot",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/v1/parking-lot",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"parking-lot"
+					]
+				},
+				"description": "Get Parking Lot"
+			},
+			"response": []
+		},
+		{
+			"name": "ParkCarInParkingLot",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"LicenseNo\" : \"KA-01-BB-0001\",\r\n\t\"Colour\" : \"Black\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/parking-lot/park",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"parking-lot",
+						"park"
+					]
+				},
+				"description": "Park Car in Parking Lot"
+			},
+			"response": []
+		},
+		{
+			"name": "LeaveCarFromParkingLot",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/v1/parking-lot/leave/0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"parking-lot",
+						"leave",
+						"0"
+					]
+				},
+				"description": "Leave Car From Parking Lot"
+			},
+			"response": []
+		},
+		{
+			"name": "GetCarByColour",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/v1/parking-lot/find-car-by-colour/black",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"parking-lot",
+						"find-car-by-colour",
+						"black"
+					]
+				},
+				"description": "Get Car By Colour"
+			},
+			"response": []
+		},
+		{
+			"name": "GetSlotNoByColour",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/v1/parking-lot/find-slot-no-by-colour/black",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"parking-lot",
+						"find-slot-no-by-colour",
+						"black"
+					]
+				},
+				"description": "Get Slot No By Colour"
+			},
+			"response": []
+		},
+		{
+			"name": "GetSlotNoByLicenseNo",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/v1/parking-lot/find-slot-no-by-license-no/kA-01-BB-0001",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"parking-lot",
+						"find-slot-no-by-license-no",
+						"kA-01-BB-0001"
+					]
+				},
+				"description": "Get Slot No By License No"
+			},
+			"response": []
+		}
+	]
+}
